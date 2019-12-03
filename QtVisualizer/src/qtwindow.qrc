@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/QtWindow">
+        <file>Resources/play.svg</file>
+        <file>Resources/reset.svg</file>
+        <file>Resources/export.svg</file>
+    </qresource>
+</RCC>

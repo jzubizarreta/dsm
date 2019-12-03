@@ -1,0 +1,114 @@
+debugPrintLog = false
+debugLogTracking = false
+debugLogKeyframes = false
+debugLogPixelDetection = false
+debugLogCandidatesTracking = false
+debugLogCandidatesOpt = false
+debugLogDistanceMap = false
+debugLogActivePoints = false
+
+debugCandidates = false
+
+debugShowTrackResult = false
+debugShowTrackError = false
+debugShowTrackWeights = false
+debugShowTrackLight = false
+debugShowTrackDistribution = false
+
+debugShowPointDetection = false
+
+debugShowDistanceTransformBefore = false
+debugShowDistanceTransformAfter = false
+
+debugShowOptKeyframes = false
+
+debugShowOptError = false
+debugShowOptWeight = false
+debugShowOptLight = false
+debugShowOptErrorDist = false
+debugShowOptErrorDistLast = false
+
+depthMapsDir = ./DepthMaps
+saveDepthMaps = false
+
+optErrorDistDir = ./ErrorDistribution
+saveOptErrorDist = false
+
+blockUntilMapped = false
+singleThreaded = true
+mappingThreads = 6
+
+minimizeMemory = false
+
+useFixedHuberScale = false
+huberScale = 9
+
+useTDistribution = true
+nuFixed = -1
+muFixed = 0
+sigmaFixed = -1
+
+defaultNu = 5
+defaultMu = 0
+defaultSigma = 7.5
+
+inlierPercentile = 0.95
+maxPixelOutlier = 0.3
+maxPixelDiscard = 0.6
+
+maxEnergyFit = 60
+
+weightConstant = 2500
+
+trackingMaxLevel = 3
+
+pointDetectionLevels = 2
+numCandidates = 1500
+numBlocksPerDimension = 20
+minGradAdd = 7
+
+maxUnmappedFrames = 3
+
+maxEplLengthFactor = 0.0375			
+minEplLengthSkip = 1.5
+stereoMaxEnergy = 20
+secondBestRadius = 2.0
+epiLineSigma = 0.25			
+subpixelIterations = 3
+subpixelStepThreshold = 0.1
+
+maxViewChange = 0.5
+
+candidateOptIterations = 3
+minDistToActivate = 5
+maxCandidateUncertainty = 2
+minCandidateQuality = 2
+
+doOnlyTemporalOpt = false
+printSummary = true
+showFullReport = false
+minOptimizationGrad = 2
+minBAIterations = 1
+maxBAIterations = 100
+optMaxLevel = 2				
+
+numActivePoints = 1500
+
+maxTemporalKeyframes = 5
+maxCovisibleKeyframes = 3
+numAlwaysKeepKeyframes = 3
+
+minPointCovisible = 0.05
+maxLightCovisible = 0.7
+
+minNumKFToConsiderNew = 2
+minNumGoodObservations = 3
+
+newKFDistWeight = 4
+newKFUsageWeight = 3
+newKFAffineWeight = 4
+newKFResidualWeight = 2
+minNumMappedFramesToCreateKF = 1
+
+showDepthMap = true
+showDepthMapLvl = 0
