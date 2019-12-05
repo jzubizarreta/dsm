@@ -168,8 +168,8 @@ namespace dsm
 		const float onems = 1.f - s;
 		float t = sqrt(this->nu_ * onems / s);		// t >= 0
 
-		if (!tailChanged && tail == lower ||
-			tailChanged && tail == upper)
+		if ((!tailChanged && tail == lower) ||
+			(tailChanged && tail == upper))
 		{
 			// t <= 0
 			t = -t;
