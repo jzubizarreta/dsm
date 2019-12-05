@@ -68,7 +68,7 @@ sudo apt-get install libsuitesparse-dev
 Generate the custom template specialization (optional):
 
 ```sh
-cp ./dsm/Thirdparty/Ceres/generate_template_specializations.py ./ceres-solver/internal/ceres/
+cp ./dsm/thirdparty/Ceres/generate_template_specializations.py ./ceres-solver/internal/ceres/
 python2 ceres-solver/internal/ceres/generate_template_specializations.py
 ```
 
