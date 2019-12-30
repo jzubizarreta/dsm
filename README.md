@@ -14,7 +14,7 @@ alt="DSM" width="240" height="180" border="10" /></a>
 * Jon Zubizarreta, Iker Aguinaga and J. M. M. Montiel. **Direct Sparse Mapping**. In *arXiv:1904.06577* [[pdf](https://arxiv.org/abs/1904.06577)]
 
 ## 2. Installation
-We tested DSM int two different system configurations: **Ubuntu 18.04** and **Windows 10** (VS15 and VS17). It should be easy to compile in other platforms. The library requires at least C++11.
+We tested DSM int two different system configurations: **Ubuntu 18.04** and **Windows 10** (VS15 and VS17). It should be easy to compile in other platforms. See below for experimental **macOS** support. The library requires at least C++11.
 
 Clone the repository:
 
@@ -108,6 +108,18 @@ make -j4
 ```
 
 This will compile two libraries `libdsm.so` and `libQtVisualizer.so` at **lib** folder, which can be linked from external projects. It will also create two executables `EurocExample` and `VideoExample` at **bin** folder to run DSM in the EuRoC dataset and with custom videos respectively.
+
+### 2.4 macOS
+
+Support for macOS is experimental and not extensively tested, but in principle DSM including the GUI should be functional.
+
+External dependencies on macOS can be installed with [Homebrew](https://brew.sh/):
+
+```sh
+brew install cmake eigen opencv ceres-solver qt
+```
+
+Now follow the instructions above for *2.3 DSM build*.
 
 ## 3. Usage
 
