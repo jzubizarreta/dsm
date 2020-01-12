@@ -108,4 +108,9 @@ qt5_use_modules(${LIBRARY_NAME} Core  Gui Widgets OpenGL)
 # Define the link libraries used in the project
 target_link_libraries(${LIBRARY_NAME} ${OPENGL_LIBRARIES} ${OpenCV_LIBS} dsm)
 
+# avoid compiler warnings from OpenGL on macos
+if(APPLE)  
+    target_compile_options(${LIBRARY_NAME} PRIVATE -Wno-deprecated-declarations -Wno-inconsistent-missing-override)
+endif()
+
 set_target_properties(${LIBRARY_NAME} PROPERTIES FOLDER "DSM")

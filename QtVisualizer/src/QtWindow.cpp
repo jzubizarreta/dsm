@@ -32,8 +32,14 @@
 	#include <windows.h>
 #endif
 
-#include <GL/gl.h> 
-#include <GL/glu.h>
+#ifdef __APPLE__
+	#include <GL/glu.h>
+	#include <OpenGL/gl.h>
+	#include <OpenGL/glu.h>
+#else
+	#include <GL/gl.h>
+	#include <GL/glu.h>
+#endif
 
 #include <QFileDialog>
 
