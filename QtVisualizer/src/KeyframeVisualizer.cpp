@@ -33,7 +33,6 @@
 #endif
 
 #ifdef __APPLE__
-	#include <GL/glu.h>
 	#include <OpenGL/gl.h>
 	#include <OpenGL/glu.h>
 #else
