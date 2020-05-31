@@ -11,7 +11,7 @@ alt="DSM" width="240" height="180" border="10" /></a>
 
 ## 1. Related Publications
 
-* Jon Zubizarreta, Iker Aguinaga and J. M. M. Montiel. **Direct Sparse Mapping**. In *arXiv:1904.06577* [[pdf](https://arxiv.org/abs/1904.06577)]
+* Jon Zubizarreta, Iker Aguinaga and J. M. M. Montiel. **Direct Sparse Mapping**. In *IEEE Transactions on Robotics* [[pdf](https://arxiv.org/abs/1904.06577)]
 
 ## 2. Installation
 We tested DSM int two different system configurations: **Ubuntu 18.04** and **Windows 10** (VS15 and VS17). It should be easy to compile in other platforms. The library requires at least C++11.
@@ -232,9 +232,10 @@ For a closed-source version of DSM for commercial purposes, please contact the a
 
 If you use DSM in an academic work, please cite:
 
-    @article{Zubizarreta2019,
+    @article{Zubizarreta2020,
       title={Direct Sparse Mapping},
       author={Zubizarreta, Jon, Aguinaga, Iker and Montiel, J. M. M.},
-      journal={arXiv:1904.06577},
-      year={2019}
+      journal={IEEE Transactions on Robotics},
+      doi = {10.1109/TRO.2020.2991614},
+      year={2020}
      }
