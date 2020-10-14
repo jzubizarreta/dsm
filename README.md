@@ -112,17 +112,18 @@ This will compile two libraries `libdsm.so` and `libQtVisualizer.so` at **lib** 
 ## 3. Usage
 
 ### 3.1 Calibration format
-DSM requires the geometric calibration of the camera as an input. Currently it uses the radial-tangential model of OpenCV. However, it should be easy to add new camera models. Take a look at `Unidistorter.h`.
+DSM requires the geometric calibration of the camera as an input. Currently it uses the radial-tangential model (`camera_type` = `radtan`) or the fisheye model (aka Kannala-Brandt 4, aka pinhole-equidistant) (`camera_type` = `equidistant`) of OpenCV. However, it should be easy to add new camera models. Take a look at `Unidistorter.h`.
 
 The calibration file has the format
 
 ```
-fx fy cx cy k1 k2 p1 p2
+camera_type
+fx fy cx cy other parameters
 in_width in_height
 out_width out_height 
 ```
 
-It is also possible to use higher order distortion models. You have to add the additional distortion coefficients using the OpenCV order. If no distortion coefficients are provided, they are assumed to be zero.
+It is also possible to use higher order distortion models. You have to add the additional distortion coefficients using the OpenCV order. If no distortion coefficients are provided, they are assumed to be zero. Examples can be found in `Examples/EurocData` and `Examples/TUMVIData`.
 
 ### 3.2 EuRoC Example
 
@@ -147,6 +148,8 @@ where
    * (Optional) `<SETTINGS_FILE>` File with the system settings. If it is not provided, internal default values are used.
 
 The `<IMAGE_FOLDER>` can be usually found in `<SEQ_FOLDER>/mav0/camX/data`, where the X indicates if the left (0) or right (1) camera is used. The specific `<TIMESTAMPS_FILE>`, `<CALIB_FILE>` and `<SETTINGS_FILE>` for the EuRoC dataset are provided in `Examples/EurocData`.
+
+The same executable can be used to run sequences from the TUM-VI dataset.
 
 ### 3.3 Video Example
 It is also possible to run your own custom videos with known camera calibration. Run the executable as

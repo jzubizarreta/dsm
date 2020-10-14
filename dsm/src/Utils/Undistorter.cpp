@@ -45,24 +45,36 @@ namespace dsm
 		}
 
 		// read lines
-		std::string l1, l2, l3;
+		std::string l1, l2, l3, l4;
 
 		std::getline(infile, l1);
 		std::getline(infile, l2);
 		std::getline(infile, l3);
+        std::getline(infile, l4);
 
 		std::istringstream iss1(l1);
 		std::istringstream iss2(l2);
 		std::istringstream iss3(l3);
+		std::istringstream iss4(l4);
 
-		// first line: camera parameters
+		// first line: camera type
+		std::string camera_type;
+		iss1 >> camera_type;
+
+		if(camera_type != "radtan" && camera_type != "equidistant") {
+			std::cout << "Camera type should be either 'radtan' or 'equidistant'. Setting to 'radtan'." << std::endl;
+			camera_type = "radtan";
+		}
+
+
+		// second line: camera parameters
 		size_t count = 1;
 		std::array<double, 12> inputCalibration;		// max 12 params
-		iss1 >> inputCalibration[count - 1];
-		while (std::istream::goodbit == iss1.rdstate())
+		iss2 >> inputCalibration[count - 1];
+		while (std::istream::goodbit == iss2.rdstate())
 		{
 			count++;
-			iss1 >> inputCalibration[count - 1];
+			iss2 >> inputCalibration[count - 1];
 		}
 
 		// set inputK and distortion params
@@ -80,11 +92,11 @@ namespace dsm
 			this->distCoeffs_.at<double>(i, 0) = inputCalibration[4 + i];
 		}
 
-		// second line input image size
-		if (iss2 >> this->in_width >> this->in_height)
+		// third line input image size
+		if (iss3 >> this->in_width >> this->in_height)
 		{
 			std::cout << "Input resolution: " << this->in_width << ", " << this->in_height << std::endl;
-			std::cout << "Input calibration: " << this->originalK_.at<double>(0, 0) << " " << this->originalK_.at<double>(1, 1) << " " << 
+			std::cout << "Input calibration: " << this->originalK_.at<double>(0, 0) << " " << this->originalK_.at<double>(1, 1) << " " <<
 												  this->originalK_.at<double>(0, 2) << " " << this->originalK_.at<double>(1, 2);
 			for (int i = 0; i < numDistortionParams; ++i)
 			{
@@ -100,8 +112,8 @@ namespace dsm
 			return;
 		}
 
-		// third line output image size
-		if (iss3 >> this->out_width >> this->out_height)
+		// fourth line output image size
+		if (iss4 >> this->out_width >> this->out_height)
 		{
 			std::cout << "Output resolution: " << this->out_width << ", " << this->out_height << std::endl;
 		}
@@ -116,10 +128,18 @@ namespace dsm
 		this->K_ = cv::getOptimalNewCameraMatrix(this->originalK_, this->distCoeffs_, cv::Size(this->in_width, this->in_height),
 												 0, cv::Size(this->out_width, this->out_height), nullptr, false);
 
-		cv::initUndistortRectifyMap(this->originalK_, this->distCoeffs_, cv::Mat(), this->K_,
-									cv::Size(this->out_width, this->out_height), CV_32F, this->mapx, this->mapy);
+		if(camera_type == "radtan")
+		{
+			cv::initUndistortRectifyMap(this->originalK_, this->distCoeffs_, cv::Mat(), this->K_,
+				cv::Size(this->out_width, this->out_height), CV_32F, this->mapx, this->mapy);
+		}
+		else if(camera_type == "equidistant")
+		{
+			cv::fisheye::initUndistortRectifyMap(this->originalK_, this->distCoeffs_, cv::Mat(), this->K_,
+				cv::Size(this->out_width, this->out_height), CV_32F, this->mapx, this->mapy);
+		}
 
-		std::cout << "Output calibration: " << this->K_.at<double>(0, 0) << " " << this->K_.at<double>(1, 1) << " " << 
+		std::cout << "Output calibration: " << this->K_.at<double>(0, 0) << " " << this->K_.at<double>(1, 1) << " " <<
 											   this->K_.at<double>(0, 2) << " " << this->K_.at<double>(1, 2) << std::endl;
 
 		valid = true;
