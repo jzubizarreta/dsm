@@ -94,6 +94,11 @@ namespace dsm
 		this->mainWindow->play(false);
 	}
 
+	void QtVisualizer::close()
+	{
+		this->mainWindow->close();
+	}
+
 	void QtVisualizer::setImageSize(int w, int h)
 	{
 		this->mainWindow->setImageSize(w, h);

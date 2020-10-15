@@ -41,23 +41,23 @@ namespace dsm
 	{
 		bool readOK = this->readImageNames();
 
-		if (readOK)
-		{
-			//sequence length in seconds
-			double diff = this->timestamps.back() - this->timestamps.front();
-
-			//fps
-			this->fps_ = this->timestamps.size() / diff;
-
-			// reset
-			this->reset();
-
-			std::cout << "EurocMav sequence found!" << std::endl;
-
-			return true;
+		if (!readOK) {
+			std::cout << "Could not read timestamps file at " << this->timestampPath << std::endl;
+			return false;
 		}
 
-		return false;
+		//sequence length in seconds
+		double diff = this->timestamps.back() - this->timestamps.front();
+
+		//fps
+		this->fps_ = this->timestamps.size() / diff;
+
+		// reset
+		this->reset();
+
+		std::cout << "EurocMav sequence found!" << std::endl;
+
+		return true;
 	}
 
 	void EurocReader::reset()
