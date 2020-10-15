@@ -71,7 +71,7 @@ if __name__ == "__main__":
         print("An old version of 'rmsate_summary.txt' exists. Going to delete it.")
         send2trash("%s/rmsate_summary.txt" % dir_path)
 
-    with open("rmsate_summary.txt", "a") as summary_file:
+    with open("%s/rmsate_summary.txt" % dir_path, "a") as summary_file:
         summary_file.write(
             "#sequence name: median RMS ATE, fail count/ runs per sequence\n")
 
@@ -98,11 +98,11 @@ if __name__ == "__main__":
             convert_gt(gt_file_name, sequence_path)
 
             # the result.txt file is the indicator if a run was successful
-            # we delete it know to see if a new file exists after DSO finished
+            # we delete it know to see if a new file exists after DSM finished
             if os.path.isfile("%s/result.txt" % dir_path):
                 os.remove("%s/result.txt" % dir_path)
 
-            # execute DSO
+            # execute DSM
             subprocess.run(["%s/../../build/bin/EurocExample" % dir_path,
                             "%s/mav0/cam0/data" % sequence_path,
                             "%s/TimeStamps/%s.txt" % (dir_path, sequence),
@@ -149,7 +149,7 @@ if __name__ == "__main__":
             median = np.median(rmsates[rmsates != 0])
 
         # write statistics
-        with open("rmsate_summary.txt", "a") as summary_file:
+        with open("%s/rmsate_summary.txt" % dir_path, "a") as summary_file:
             summary_file.write("%s: %f, %d/%d\n" % (sequence,
                                                     median, fail_count, args.runs_per_sequence))
 
