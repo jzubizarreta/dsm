@@ -24,6 +24,8 @@
 #include <iostream>
 #include <thread>
 #include <memory>
+#include <fstream>
+#include <iomanip>
 
 #include "glog/logging.h"
 
@@ -43,19 +45,44 @@ extern "C"
 }
 #endif
 
-namespace dsm
-{
-	class Processor
+namespace dsm {
+	void saveTrajectoryDSOFormat(const std::string fileName, const std::vector<Eigen::Matrix4f>& poses,
+		const std::vector<double>& timestamps)
 	{
+		if (fileName.empty()) return;
+
+		std::cout << "Saving trajectory to " << fileName << std::endl;
+
+		std::ofstream resultsFile;
+		resultsFile.open(fileName.c_str());
+		resultsFile << std::setprecision(15);
+
+		for (size_t i = 0; i < timestamps.size(); i++)
+		{
+			const Sophus::SE3f pose(poses.at(i));
+
+			resultsFile << timestamps.at(i) <<
+					" " << pose.translation().transpose() <<
+					" " << pose.so3().unit_quaternion().x() <<
+					" " << pose.so3().unit_quaternion().y() <<
+					" " << pose.so3().unit_quaternion().z() <<
+					" " << pose.so3().unit_quaternion().w() << "\n";
+		}
+
+		resultsFile.close();
+	}
+
+
+	class Processor {
 	public:
 
 		inline Processor() { this->shouldStop = false; }
 		inline ~Processor() { this->join(); }
 
-		inline void run(EurocReader& reader, Undistorter& undistorter, QtVisualizer& visualizer, std::string& settingsFile)
+		inline void run(EurocReader& reader, Undistorter& undistorter, QtVisualizer& visualizer, std::string& settingsFile, bool autorun)
 		{
 			this->processThread = std::make_unique<std::thread>(&Processor::doRun, this,
-				std::ref(reader), std::ref(undistorter), std::ref(visualizer), std::ref(settingsFile));
+				std::ref(reader), std::ref(undistorter), std::ref(visualizer), std::ref(settingsFile), autorun);
 		}
 
 		inline void join()
@@ -75,7 +102,7 @@ namespace dsm
 
 	private:
 
-		inline void doRun(EurocReader& reader, Undistorter& undistorter, QtVisualizer& visualizer, std::string& settingsFile)
+		inline void doRun(EurocReader& reader, Undistorter& undistorter, QtVisualizer& visualizer, std::string& settingsFile, bool autorun)
 		{
 			int id = 0;
 			cv::Mat image;
@@ -90,6 +117,8 @@ namespace dsm
 
 			// create DSM
 			std::unique_ptr<FullSystem> DSM;
+
+			bool succesful_run = false;
 
 			while (!this->shouldStop)
 			{
@@ -112,43 +141,63 @@ namespace dsm
 				}
 
 				// capture
-				if (visualizer.getDoProcessing() && reader.read(image, timestamp))
+				if (visualizer.getDoProcessing() || autorun)
 				{
-					double time = (double)cv::getTickCount();
-
-					//gray image from source
-					if (image.channels() == 3)
+					if (reader.read(image, timestamp))
 					{
-						cv::cvtColor(image, image, cv::COLOR_BGR2GRAY);
+						double time = (double)cv::getTickCount();
+
+						//gray image from source
+						if (image.channels() == 3)
+						{
+							cv::cvtColor(image, image, cv::COLOR_BGR2GRAY);
+						}
+
+						// convert 16bit images to 8bit
+						if ((image.type() & CV_MAT_DEPTH_MASK) == CV_16U)
+						{
+							image.convertTo(image, CV_8U, 1 / 257.0);
+						}
+
+						// undistort
+						undistorter.undistort(image, image);
+
+						if (DSM == nullptr)
+						{
+							DSM = std::make_unique<FullSystem>(undistorter.getOutputWidth(),
+															   undistorter.getOutputHeight(),
+															   K, settingsFile,
+															   &visualizer);
+						}
+
+						// process
+						DSM->trackFrame(id, timestamp, image.data);
+
+						if(DSM->isLost() && autorun)
+						{
+							std::cout << "DSM lost tracking!" << std::endl;
+							this->shouldStop = true;
+						}
+
+						// visualize image
+						visualizer.publishLiveFrame(image);
+
+						// increase counter
+						++id;
+
+						// wait
+						time = 1000.0*(cv::getTickCount() - time) / cv::getTickFrequency();
+						const double delay = (1000.0 / fps) - time;
+
+						if (delay > 0.0)
+						{
+							std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<unsigned int>(delay)));
+						}
 					}
-
-					// undistort
-					undistorter.undistort(image, image);
-
-					if (DSM == nullptr)
+					else
 					{
-						DSM = std::make_unique<FullSystem>(undistorter.getOutputWidth(),
-														   undistorter.getOutputHeight(),
-														   K, settingsFile,
-														   &visualizer);
-					}
-
-					// process
-					DSM->trackFrame(id, timestamp, image.data);
-
-					// visualize image
-					visualizer.publishLiveFrame(image);
-
-					// increase counter
-					++id;
-
-					// wait 
-					time = 1000.0*(cv::getTickCount() - time) / cv::getTickFrequency();
-					const double delay = (1000.0 / fps) - time;
-
-					if (delay > 0.0)
-					{
-						std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<unsigned int>(delay)));
+						succesful_run = true;
+						this->shouldStop = true;
 					}
 				}
 				else
@@ -158,10 +207,22 @@ namespace dsm
 				}
 			}
 
-			// print log
+			// print log and save results
 			if (DSM)
 			{
+				if (succesful_run)
+				{
+					std::vector<Eigen::Matrix4f> poses;
+					std::vector<double> timestamps;
+					DSM->getTrajectory(poses, timestamps);
+					saveTrajectoryDSOFormat("result.txt", poses, timestamps);
+				}
 				DSM->printLog();
+			}
+
+			if(autorun)
+			{
+				visualizer.close();
 			}
 		}
 
@@ -177,14 +238,19 @@ int main(int argc, char *argv[])
 {
 	// input arguments
 	std::string imageFolder, timestampFile, calibFile, settingsFile;
+	bool autorun = false;
 
 	// Configuration
-	if (argc == 5)
+	if (argc == 6)
 	{
 		imageFolder = argv[1];
 		timestampFile = argv[2];
 		calibFile = argv[3];
 		settingsFile = argv[4];
+		if("autorun" == std::string(argv[5]))
+		{
+			autorun = true;
+		}
 	}
 	else if (argc == 4)
 	{
@@ -226,7 +292,7 @@ int main(int argc, char *argv[])
 	dsm::EurocReader reader(imageFolder, timestampFile, false);
 	if (!reader.open())
 	{
-		std::cout << "no images found ..." << std::endl;
+		std::cout << "no images found in " << imageFolder << std::endl;
 		return 0;
 	}
 
@@ -237,7 +303,7 @@ int main(int argc, char *argv[])
 
 	// run processing in a second thread
 	dsm::Processor processor;
-	processor.run(reader, undistorter, visualizer, settingsFile);
+	processor.run(reader, undistorter, visualizer, settingsFile, autorun);
 
 	// run main window
 	// it will block the main thread until closed

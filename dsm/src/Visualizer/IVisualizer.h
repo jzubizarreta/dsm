@@ -55,6 +55,8 @@ namespace dsm
 
 		virtual void reset() = 0;
 
+		virtual void close() = 0;
+
 		virtual void publishCamTrackingTime(float time) = 0;
 		virtual void resetCamTrackingTime() = 0;
 

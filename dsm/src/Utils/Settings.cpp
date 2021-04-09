@@ -40,7 +40,8 @@ namespace dsm
 	Settings::Settings() 
 	{
 		this->reset();
-	}
+        std::setlocale(LC_ALL, "en_US.UTF-8");
+    }
 
 	Settings::~Settings()
 	{

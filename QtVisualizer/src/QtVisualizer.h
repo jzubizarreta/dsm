@@ -65,6 +65,9 @@ namespace dsm
 		// reset everything
 		void reset();
 
+		// close the window
+		void close();
+
 		// image size
 		void setImageSize(int w, int h);
 
