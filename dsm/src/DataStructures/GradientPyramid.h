@@ -202,5 +202,52 @@ namespace dsm
 				magPtr[idx] = gxPtr[idx] * gxPtr[idx] + gyPtr[idx] * gyPtr[idx];
 			}
 		}
+
+		// assert(width >= 2)
+		// assert(height >= 2)
+		for(int x = 1; x < width - 1; ++x)
+		{
+			const int xn = width*(height-1) + x;
+			gxPtr[x] = (T)0.5*(imgPtr[x + 1] - imgPtr[x - 1]);
+			gyPtr[x] = (T)(imgPtr[x + width] - imgPtr[x]);
+			magPtr[x] = gxPtr[x] * gxPtr[x] + gyPtr[x] * gyPtr[x];
+
+			gxPtr[xn] = (T)0.5*(imgPtr[xn + 1] - imgPtr[xn - 1]);
+			gyPtr[xn] = (T)(imgPtr[xn] - imgPtr[xn-width]);
+			magPtr[xn] = gxPtr[xn] * gxPtr[xn] + gyPtr[xn] * gyPtr[xn];
+		}
+
+		for(int y = 1; y < height - 1; ++y)
+		{
+			const int y0 = y * width;
+			const int yn = y + width - 1;
+			gxPtr[y0] = (T)(imgPtr[y0 + 1] - imgPtr[y0]);
+			gyPtr[y0] = (T)0.5*(imgPtr[y0 + width] - imgPtr[y0 - width]);
+			magPtr[y0] = gxPtr[y0] * gxPtr[y0] + gyPtr[y0] * gyPtr[y0];
+
+			gxPtr[yn] = (T)(imgPtr[yn] - imgPtr[yn - 1]);
+			gyPtr[yn] = (T)0.5*(imgPtr[yn + width] - imgPtr[yn - width]);
+			magPtr[yn] = gxPtr[yn] * gxPtr[yn] + gyPtr[yn] * gyPtr[yn];
+		}
+
+		int id = 0;
+		gxPtr[id] = (T)(imgPtr[id + 1] - imgPtr[id]);
+		gyPtr[id] = (T)(imgPtr[width] - imgPtr[id]);
+		magPtr[id] = gxPtr[id] * gxPtr[id] + gyPtr[id] * gyPtr[id];
+
+		id = width - 1;
+		gxPtr[id] = (T)(imgPtr[id] - imgPtr[id - 1]);
+		gyPtr[id] = (T)(imgPtr[2*width - 1] - imgPtr[id]);
+		magPtr[id] = gxPtr[id] * gxPtr[id] + gyPtr[id] * gyPtr[id];
+
+		id = (height - 1)*width;
+		gxPtr[id] = (T)(imgPtr[id + 1] - imgPtr[id]);
+		gyPtr[id] = (T)(imgPtr[id] - imgPtr[id - width]);
+		magPtr[id] = gxPtr[id] * gxPtr[id] + gyPtr[id] * gyPtr[id];
+
+		id = height * width - 1;
+		gxPtr[id] = (T)(imgPtr[id] - imgPtr[id - 1]);
+		gxPtr[id] = (T)(imgPtr[id] - imgPtr[id - width]);
+		magPtr[id] = gxPtr[id] * gxPtr[id] + gyPtr[id] * gyPtr[id];
 	}
 }
